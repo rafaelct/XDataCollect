@@ -1,0 +1,40 @@
+import java.awt.Font;
+
+import javax.swing.JCheckBox;
+import javax.swing.JLabel;
+import javax.swing.JPanel;
+
+import net.miginfocom.swing.MigLayout;
+
+
+public class cpSelServidores {
+
+	JPanel panel_interno;
+	
+	public cpSelServidores(String nomeDoServidor,String ipHost) {
+		// TODO Auto-generated constructor stub
+		
+		JCheckBox checkBox = new JCheckBox( nomeDoServidor );
+
+		panel_interno = new JPanel();
+		panel_interno.setLayout( new MigLayout("nogrid"));
+		panel_interno.setBorder(javax.swing.BorderFactory.createLineBorder(java.awt.Color.black) );
+		panel_interno.setBackground(java.awt.Color.yellow);
+		
+		JLabel lblServHostIp = new JLabel( ipHost );
+		JLabel lblNomeServHostIp = new JLabel("Host/Ip:");
+		
+		lblServHostIp.setFont( new Font(Font.SANS_SERIF,Font.ITALIC,9) );
+		lblServHostIp.setForeground( java.awt.Color.blue );
+
+		panel_interno.add(checkBox,"wrap");
+		panel_interno.add(lblNomeServHostIp);
+		panel_interno.add(lblServHostIp);
+
+	}
+
+	public JPanel getPanel() {
+		return panel_interno;
+	}
+
+}

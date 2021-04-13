@@ -1,0 +1,28 @@
+import javax.swing.JButton;
+import javax.swing.JFrame;
+import javax.swing.JPanel;
+
+import net.miginfocom.swing.MigLayout;
+
+
+public class Janela {
+
+	public Janela() {
+		// TODO Auto-generated constructor stub
+		
+		JFrame gui = new JFrame("Dedo Duro v2.0");
+		JPanel panel = new JPanel();
+		panel.setLayout( new MigLayout("nogrid"));
+		gui.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+		gui.setBounds(0, 0, 1024, 700);
+		
+		JButton botaoExecuta = new JButton("Pegar informações dos servidores");
+		panel.add(botaoExecuta);
+		gui.add(panel);
+		
+		gui.setVisible(true);
+		
+		
+	}
+
+}

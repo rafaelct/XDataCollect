@@ -1,0 +1,46 @@
+import java.awt.Color;
+
+import javax.swing.JButton;
+import javax.swing.JComboBox;
+import javax.swing.JLabel;
+import javax.swing.JRadioButton;
+
+
+public class GuiServidores {
+
+	JComboBox comboServidores;
+	
+	public GuiServidores() {
+		// TODO Auto-generated constructor stub
+		
+		JLabel lblServidores = new JLabel("Servidores:");
+		
+		JLabel lblNomeVersao = new JLabel("Versão:");
+		final JLabel lblVersao = new JLabel("");
+		lblVersao.setForeground(Color.blue );
+		
+		comboServidores = new JComboBox();
+		comboServidores.addItem("<Selecione>");
+
+		JButton btnCmdAdd = new JButton("Adicionar");
+		JButton btnCmdDel = new JButton("Remover");
+		final JButton btnSalvar = new JButton("Salvar Configurações");
+		
+		final Tabela tabela = new Tabela();
+		tabela.init("CS");
+		tabela.setVisivel(true);
+
+		final JRadioButton opcaoSalvarTodos = new JRadioButton("Salvar em todos Servidores");
+		
+		final JRadioButton opcaoSalvar = new JRadioButton("Salvar apenas no servidor " + comboServidores.getSelectedItem() );
+
+		if(comboServidores.getSelectedItem().equals("<Selecione>") ) {
+			opcaoSalvar.setVisible(false);
+			opcaoSalvarTodos.setSelected(true);
+			opcaoSalvar.setSelected(false);
+			
+		}
+
+	}
+
+}

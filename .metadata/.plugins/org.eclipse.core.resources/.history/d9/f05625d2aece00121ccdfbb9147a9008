@@ -1,0 +1,31 @@
+import javax.swing.JButton;
+import javax.swing.JPanel;
+
+import net.miginfocom.swing.MigLayout;
+
+
+public class guiBtControles {
+
+	JPanel panel;
+	
+	public guiBtControles() {
+		// TODO Auto-generated constructor stub
+		
+		panel = new JPanel();
+		panel.setLayout( new MigLayout("nogrid"));
+		
+		JButton btSetaEsquerda = new JButton("<");
+		JButton btSetaExcluir = new JButton("X");
+		JButton btSetaDireita = new JButton(">");
+		
+		panel.add(btSetaEsquerda,"wrap");
+		panel.add(btSetaExcluir,"wrap");
+		panel.add(btSetaDireita,"wrap");
+		
+	}
+
+	public JPanel getPanel() {
+		return panel;
+	}
+
+}

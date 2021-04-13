@@ -1,0 +1,447 @@
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
+import java.net.Socket;
+import java.sql.SQLException;
+import java.util.Date;
+import java.util.Vector;
+
+
+public class ServerSession implements Runnable{
+
+	private Socket socket;
+	private DBConnect dbConnect;
+	private ObjectOutputStream output;
+	private ObjectInputStream input;
+	private String linha,linha2,linha3,linha4;
+
+	public ServerSession(Socket s,DBConnect db) {
+		
+		// TODO Auto-generated constructor stub
+		try{
+			
+			 dbConnect = db;
+			 
+			
+			 socket = s;
+			 output = new ObjectOutputStream( socket.getOutputStream());
+			 input = new ObjectInputStream( socket.getInputStream());
+		
+			 output.flush();
+		
+		}catch(IOException e) {
+			e.printStackTrace();
+		}
+		
+	}
+	
+	public void run() {
+		
+		try{
+			
+		
+		linha = (String) input.readObject();
+		System.out.println(linha);
+		
+		if(linha.equals("<getUsuarios>")) {
+			
+			// Causa de vazamento de 
+			WmiConnect wmiConnect = new WmiConnect(); // desabilitado para teste
+			
+			Vector vetorDados = new Vector();
+			Vector vetorDadosUsuarios;
+			//vetorDados.add("FullName");
+			//vetorDados.add("Name");
+			//vetorDados.add("Disabled");
+			//vetorDados.add("Domain");
+			//vetorDados.add("Description");
+			
+			//A linha abaixo foi desabiltada para teste de memory leak
+			
+			vetorDadosUsuarios = wmiConnect.executa("SELECT FullName FROM Win32_UserAccount","FullName","localhost","","");
+			//vetorDadosUsuarios = dbConnect.retornaListaUsuarios();
+			
+			//wmiConnect.executa("SELECT FullName FROM Win32_UserAccount",vetorDados,"localhost","","");
+			
+			// Thread tarefaWmi = new Thread(wmiConnect);
+			// tarefaWmi.start();
+			
+			//while(tarefaWmi.isAlive()) {
+				
+			//	System.out.println("Estou vivo");
+			//}
+			// tarefaWmi = null;
+			
+			// vetorDadosUsuarios = wmiConnect.getResultado();
+			wmiConnect = null;
+			output.writeObject(vetorDadosUsuarios); //desabilitado para teste
+			//output.writeObject(vetorDados); // habilitado para teste
+			output.flush();
+			//wmiConnect = null; // desabilitado para teste
+			
+			vetorDados.clear();
+			vetorDados = null;
+			
+			// As 2 linhas abaixo foram desabilitdaasa para teste
+			vetorDadosUsuarios.clear();
+			vetorDadosUsuarios = null;
+			
+			//vetorDados.clear();
+			//vetorDados = null;
+			
+			
+		}
+		
+		if(linha.equals("<getUsuariosAtivos>") ) {
+			
+			Vector vetorDadosUsuarios = new Vector();
+			
+			WmiConnect wmiConnect = new WmiConnect();
+			
+			vetorDadosUsuarios = wmiConnect.executa("SELECT * FROM Win32_UserAccount WHERE Disabled='False'","FullName","localhost","","");
+			
+			if(vetorDadosUsuarios.size() == 0 ) {
+				
+				vetorDadosUsuarios = wmiConnect.executa("SELECT * FROM Win32_UserAccount WHERE Disabled='Falso'","FullName","localhost","","");
+
+			}
+			System.out.println("Resultado de usuarios ativos:" + vetorDadosUsuarios);
+			
+			output.writeObject(vetorDadosUsuarios);
+			output.flush();
+			
+			vetorDadosUsuarios.clear();
+			vetorDadosUsuarios = null;
+			wmiConnect = null;
+			
+		}
+		if(linha.equals("<getInfoUsuario>")) {
+			
+			
+			linha = (String) input.readObject();
+			
+			WmiConnect wmiConnect = new WmiConnect();
+			
+			//Vector vetorDados = new Vector();
+			Vector vetorDadosUsuarios = new Vector();
+			//vetorDados.add("FullName");
+			//vetorDados.add("Name");
+			//vetorDados.add("Disabled");
+			//vetorDados.add("Domain");
+			//vetorDados.add("Description");
+			//String linha = new String("Téste 3");
+			//System.out.println("Usuario Nome:"+ linha);
+			vetorDadosUsuarios.add(linha);
+			//wmiConnect.executa("SELECT * FROM Win32_UserAccount WHERE FullName='"+ linha + "'",vetorDados,"localhost","","");
+			//vetorDadosUsuarios.add( (String) wmiConnect.executaStr("SELECT * FROM Win32_UserAccount WHERE FullName='" + linha + "'","FullName","localhost","",""));
+			vetorDadosUsuarios.add( (String) wmiConnect.executaStr("SELECT * FROM Win32_UserAccount WHERE FullName='" + linha + "'","Name","localhost","",""));
+			vetorDadosUsuarios.add( (String) wmiConnect.executaStr("SELECT * FROM Win32_UserAccount WHERE FullName='" + linha + "'","Disabled","localhost","",""));
+			vetorDadosUsuarios.add( (String) wmiConnect.executaStr("SELECT * FROM Win32_UserAccount WHERE FullName='" + linha + "'","Domain","localhost","",""));
+			vetorDadosUsuarios.add( (String) wmiConnect.executaStr("SELECT * FROM Win32_UserAccount WHERE FullName='" + linha + "'","Description","localhost","",""));
+			
+			//Thread tarefaWmi = new Thread(wmiConnect);
+			//tarefaWmi.start();
+			
+			//while( tarefaWmi.isAlive() ) {
+			//	System.out.println("Estou vivo 2 !!!");
+			//}
+			
+			//tarefaWmi = null;
+			
+			//vetorDadosUsuarios = wmiConnect.getResultado();
+			
+			output.writeObject(vetorDadosUsuarios);
+			output.flush();
+			
+			vetorDadosUsuarios.clear();
+			vetorDadosUsuarios = null;
+			
+			wmiConnect = null;
+			//vetorDados.clear();
+			//vetorDados = null;
+			
+			
+		}
+		
+		if(linha.equals("<quemUsa>")) {
+			
+			WmiConnect wmiConnect = new WmiConnect();
+			
+			//Vector vetorDados = new Vector();
+			//Vector vetorDadosUsuarios;
+			//vetorDados.add("UserName");
+			//vetorDados.add("Name");
+			//vetorDados.add("Disabled");
+			//vetorDados.add("Domain");
+			//vetorDados.add("Description");
+
+			String user = wmiConnect.executaStr("SELECT * FROM Win32_ComputerSystem","UserName","localhost","","");
+			
+			/* Trata informação da variavel user
+			 * 
+			 * Ex: Dominio\login
+			 * 
+			 * Converte login para Nome Completo do usuario
+			 */
+			
+			if( user.length() > 0 ) {
+				String trataUsa[] = user.split("\\\\");
+				user = trataUsa[1];
+				user = wmiConnect.executaStr("SELECT * FROM Win32_UserAccount WHERE Name='" + user + "'","FullName","localhost","","");
+				
+			}
+			//Thread tarefaWmi = new Thread(wmiConnect);
+			//tarefaWmi.start();
+			
+			//while(tarefaWmi.isAlive()) {
+			//	System.out.println("Estou vivo 3 !!!");
+			//}
+			
+			//tarefaWmi = null;
+			
+			//vetorDadosUsuarios = wmiConnect.getResultado();
+			
+			output.writeObject(user);
+			output.flush();
+			
+			wmiConnect = null;
+			user = null;
+			//vetorDadosUsuarios.clear();
+			//vetorDadosUsuarios = null;
+			
+		}
+		
+		if(linha.equals("<ativar>")) {
+			
+			String usuarioStr = (String) input.readObject();
+			String dataBloquear = (String) input.readObject();
+			String quemAtivou = (String) input.readObject();
+			
+			System.out.println("***********"+usuarioStr);
+			
+			WmiConnect wmiConnect = new WmiConnect();
+			String quemAtivouFullName = wmiConnect.executaStr("SELECT FullName FROM Win32_UserAccount WHERE Name='"+quemAtivou+"'","FullName","localhost","","");
+			
+			if( quemAtivouFullName.length() > 0) {
+				quemAtivou = quemAtivouFullName;
+			}
+			
+			Usuario usuario = new Usuario();
+			
+			usuario.setNome(usuarioStr);
+			usuario.setLogin( (String) wmiConnect.executaStr("SELECT * FROM Win32_UserAccount WHERE FullName='" + usuarioStr + "'","Name","localhost","",""));
+			//wmiConnect = null;
+			
+			Date dataAtual = new Date();
+			
+			// String infoData[] = dataBloquear.split("-");
+			String dataAtualTeste = UtilidadesData.converteDataparaString(dataAtual);
+			Date dataScheduller = UtilidadesData.converteStringparaData(dataBloquear);
+			
+			System.out.println(dataAtualTeste);
+			//System.exit(0);
+			/*
+			dataScheduller.setDate( Integer.parseInt(infoData[0]) );
+			dataScheduller.setMonth( ( Integer.parseInt(infoData[1]) - 1 ) );
+			dataScheduller.setYear( ( Integer.parseInt(infoData[2]) - 1900 ) );
+			dataScheduller.setHours( Integer.parseInt(infoData[3]) );
+			dataScheduller.setMinutes( Integer.parseInt(infoData[4]));
+			*/
+			
+			// Codigo de comparação de Datas
+			int codigoData = UtilidadesData.comparaDatas(dataScheduller, dataAtual);
+			//System.exit(0);
+			
+			if(codigoData != 1) {
+				
+				output.writeObject(codigoData);
+				output.flush();
+			
+			}
+			
+			System.out.println("Dia " + dataAtual.getDate() + "/" + dataAtual.getMonth() + "/" + dataAtual.getYear() + " " + dataAtual.getHours() + ":" + dataAtual.getMinutes() );
+			System.out.println("Bloqueio " + dataScheduller.getDate() + "/" + dataScheduller.getMonth() + "/" + dataScheduller.getYear() + " " + dataScheduller.getHours() + ":" + dataScheduller.getMinutes() );
+			System.out.println(usuario.getLogin());
+			System.out.println(usuario.getNome());
+			System.out.println(usuario.getDescricao());
+			
+			// Verifica se esta ativo no banco de dados
+			
+			//String usuarioAtivo = dbConnect.verificaStatusUsuario(usuario,"ativado");
+			String usuarioAtivo = wmiConnect.executaStr("SELECT * FROM Win32_UserAccount WHERE Name='"+ usuario.getLogin() + "' AND Disabled='False'","Name","localhost","","");
+			
+			if(usuarioStr.length() == 0 ) {
+				usuarioAtivo = wmiConnect.executaStr("SELECT * FROM Win32_UserAccount WHERE Name='"+ usuario.getLogin() + "' AND Disabled='Falso'","Name","localhost","","");
+				
+			}
+			
+			if( ! usuario.getLogin().equals(usuarioAtivo) && codigoData == 1 ) {
+				
+				System.out.println("!!!!!!!!!!!!!!!!!! Passei aqui!!!");
+				
+				ProcessBuilder processBuilder = new ProcessBuilder("net","user",usuario.getLogin(),"/active:yes");
+				int codigoRetorno = processBuilder.start().waitFor();
+				// String dataScheduller = dataBloquear.getDate() + "-" + dataBloquear.getMonth() + "-" + dataBloquear.getYear() + "-" + dataBloquear.getHours() + "-" + dataBloquear.getMinutes();
+				/* Coisas para arrumar Aqui:
+			 	*  
+			 	*  - O mês retornado pelo Date começa com 0
+			 	*  - O ano retorna é apenas a quantidade de anos desde 1900 ( fazer ano + 1900)
+			 	*/
+			
+				System.out.println(dataBloquear);
+				
+				// Somente incluir no banco de dados se houve sucesso na ativação do usuario.
+				
+				if(codigoRetorno == 0 ) {
+					dbConnect.addScheduller(usuario, quemAtivou , dataBloquear);
+				}else {
+					codigoRetorno = 2; 
+				}
+				
+				
+				output.writeObject(codigoRetorno);
+				output.flush();
+				
+				processBuilder = null;
+				dataBloquear = null;
+			
+			}else {
+				System.out.println("Usuario ja esta ativo na base de Dados.");
+				
+				output.writeObject(1);
+				output.flush();
+
+			}
+			
+			usuario = null;
+			dataBloquear = null;
+			quemAtivou = null;
+			dataAtual = null;
+							
+		}
+
+		if(linha.equals("<bloquear>")) {
+			
+			String usuarioStr = (String) input.readObject();
+			String quemBloqueio = (String) input.readObject();
+			int codigoRetorno = 10;
+			WmiConnect wmiConnect = new WmiConnect();
+			
+			Usuario usuario = new Usuario();
+			
+			usuario.setLogin( (String) wmiConnect.executaStr("SELECT * FROM Win32_UserAccount WHERE FullName='" + usuarioStr + "'","Name","localhost","",""));
+			usuario.setNome(usuarioStr);
+			//wmiConnect = null;
+			
+			//String usuarioAtivo = dbConnect.verificaStatusUsuario(usuario,"ativado");
+			
+			String usuarioAtivo = wmiConnect.executaStr("SELECT * FROM Win32_UserAccount WHERE Name='"+ usuario.getLogin() + "' AND Disabled='False'","Name","localhost","","");
+			
+			if(usuarioStr.length() == 0 ) {
+				usuarioAtivo = wmiConnect.executaStr("SELECT * FROM Win32_UserAccount WHERE Name='"+ usuario.getLogin() + "' AND Disabled='Falso'","Name","localhost","","");
+				
+			}
+
+			if( usuario.getLogin().equals(usuarioAtivo) ) {
+				
+				Date dataAtual = new Date();
+				String dataAtualStr = dataAtual.getDate() + "-" + ( dataAtual.getMonth() + 1) + "-" + ( dataAtual.getYear() + 1900 ) + "-" + dataAtual.getHours() + "-" + dataAtual.getMinutes();
+
+				ProcessBuilder processBuilder = new ProcessBuilder("net","user",usuario.getLogin(),"/active:no");
+				codigoRetorno = processBuilder.start().waitFor();
+			
+				if(codigoRetorno == 0) {
+					codigoRetorno = dbConnect.bloquearUsuario(usuario,quemBloqueio,dataAtualStr);
+					// output.writeObject(codigoRetorno);
+					// output.flush();
+					// return;
+					
+				} else {
+					// output.writeObject(codigoRetorno);
+					// output.flush();
+					// return;
+					codigoRetorno = 2;
+					
+				}
+				
+				if( codigoRetorno == 1) {
+					
+					codigoRetorno = 0;
+					
+				} else {
+					codigoRetorno = 2;
+				}
+				
+				dataAtual = null;
+				dataAtualStr = null;
+				processBuilder = null;
+				
+			}
+			
+			output.writeObject(codigoRetorno);
+			output.flush();
+			//return;
+	
+		}
+
+		if(linha.equals("<trocasenha>")) {
+			
+			linha = (String) input.readObject();
+			linha2 = (String) input.readObject();
+			
+			/* linha = usuario
+			 * linha2 = senha
+			 */
+			
+			WmiConnect wmiConnect = new WmiConnect();
+			
+			linha = wmiConnect.executaStr("SELECT * FROM Win32_UserAccount WHERE FullName='"+ linha + "'","Name","localhost","","");
+
+			wmiConnect = null;
+			
+			ProcessBuilder processBuilder = new ProcessBuilder("net","user",linha,"\""+linha2+ "\"");
+			int codigoRetorno = processBuilder.start().waitFor();
+			
+			processBuilder = null;
+			
+			output.writeObject(codigoRetorno);
+			output.flush();
+			
+			
+		}
+		
+		if(linha.equals("<getRelatorioUsuariosScheduller>")) {
+			
+			Vector vetor = new Vector();
+			
+			//vetor = dbConnect.verificaUsuariosScheduller();
+			vetor = dbConnect.verificaStatusScheduller();
+			
+			output.writeObject(vetor);
+			output.flush();
+			
+			vetor.clear();
+			vetor = null;
+			
+		}
+		socket.close();
+		output.close();
+		input.close();
+		
+		output = null;
+		input = null;
+		socket = null;
+		
+	}catch(IOException e) {
+		e.printStackTrace();
+	}catch(ClassNotFoundException e) {
+		e.printStackTrace();
+	}catch(InterruptedException e) {
+		e.printStackTrace();
+	}catch(Exception e) {
+		e.printStackTrace();
+	}
+
+	} // fim do construtor
+
+}

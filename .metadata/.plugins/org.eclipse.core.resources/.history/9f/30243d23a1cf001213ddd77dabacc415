@@ -1,0 +1,6 @@
+
+
+public class Snippet {
+	Icon iconLog = new ImageIcon( getClass().getResource("log.png") );
+			
+}

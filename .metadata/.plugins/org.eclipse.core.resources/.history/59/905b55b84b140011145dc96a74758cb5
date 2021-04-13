@@ -1,0 +1,202 @@
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.util.ArrayList;
+import java.util.Vector;
+
+import javax.swing.JButton;
+import javax.swing.JFrame;
+import javax.swing.JLabel;
+import javax.swing.JMenu;
+import javax.swing.JMenuBar;
+import javax.swing.JMenuItem;
+import javax.swing.JOptionPane;
+import javax.swing.JPanel;
+import javax.swing.JScrollPane;
+import javax.swing.JTextArea;
+
+import net.miginfocom.swing.MigLayout;
+
+
+public class Janela {
+
+	public Janela() {
+		// TODO Auto-generated constructor stub
+		
+		JFrame gui = new JFrame("Dedo Duro v2.0");
+		final JPanel panel = new JPanel();
+		panel.setLayout( new MigLayout("nogrid"));
+		gui.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+		gui.setBounds(0, 0, 1024, 700);
+		
+		JButton botaoExecuta = new JButton("Pegar informações dos servidores");
+		JLabel labelStatus = new JLabel("Status:");
+		JLabel labelResultado = new JLabel("Resultado:");
+		
+		final JTextArea areaStatus = new JTextArea();
+		final JTextArea areaResultado = new JTextArea();
+		
+		
+		JMenuBar menuBar = new JMenuBar();
+		
+		JMenu menu = new JMenu("Ferramentas");
+		JMenu menuAjuda = new JMenu("Ajuda");
+		
+		JMenuItem configuracoes = new JMenuItem("Configurações...");
+		//JMenuItem relatorioUsuariosScheduller = new JMenuItem("Visualizar Relatorio de usuarios Schedulados...");
+		//JMenuItem relatorioUsuariosAtivos = new JMenuItem("Visualizar Relatorio de usuarios ativos");
+		
+		JMenuItem manualUsuario = new JMenuItem("Manual do usuario");
+		JMenuItem sobre = new JMenuItem("Sobre...");
+		
+		//menu.add(relatorioUsuariosScheduller);
+		//menu.add(relatorioUsuariosAtivos);
+		menu.add(configuracoes);
+		
+		menuAjuda.add(manualUsuario);
+		menuAjuda.add(sobre);
+		
+		menuBar.add(menu);
+		menuBar.add(menuAjuda);
+		
+		gui.setJMenuBar(menuBar);
+
+		
+		panel.add(labelStatus,"wrap");
+		panel.add(new JScrollPane(areaStatus),"wrap,width 900:900:900,height 100:100:100");
+		panel.add(labelResultado,"wrap");
+		panel.add(new JScrollPane(areaResultado),"wrap,width 900:900:900,height 400:400:400");
+		panel.add(botaoExecuta,"wrap");
+
+		
+		gui.add(panel);
+		
+		
+		gui.setVisible(true);
+		
+		configuracoes.addActionListener( new ActionListener() {
+			
+			public void actionPerformed(ActionEvent e) {
+				
+				JanelaConfiguracoes guiConf = new JanelaConfiguracoes(true);
+				
+			}
+			
+		});
+		
+		sobre.addActionListener( new ActionListener() {
+			
+			public void actionPerformed(ActionEvent e) {
+				
+				JOptionPane.showMessageDialog(panel, "Dedo Duro v2.0\n\nDesenvolvido por Rafael Costa Teixeira","Informação", JOptionPane.INFORMATION_MESSAGE);
+
+				
+			}
+			
+		});
+		
+		botaoExecuta.addActionListener(new ActionListener() {
+			
+			public void actionPerformed(ActionEvent e) {
+				
+				System.out.println("Teste");
+				
+				Vector vetorServidores = new Vector(); // guarda lista de servidores a consultar
+				Vector vetorInfoServer = new Vector(); // guarda informaçoes do servidor consultado
+				
+				ArrayList<ConnectThread> arrayNet = new ArrayList<ConnectThread>();
+				ArrayList<Thread> arrayTarefa = new ArrayList<Thread>();
+				
+				
+				Configuracoes configuracoes = new Configuracoes(); // abre configuracoes
+				
+				configuracoes.lerConf(); // le as configuracoes
+				
+				vetorServidores = configuracoes.getInfoServidores(); // pega informacao da configuracao
+				
+				// Consulta todos os servidores especificados na configuracao
+				
+				for(int linha = 0 ; linha < vetorServidores.size() ; linha = linha + 2 ) {
+					
+				
+					ConnectThread net = new ConnectThread( (String) vetorServidores.get(linha),(String) vetorServidores.get(linha+1) );
+					net.getInfoServer();
+					
+					Thread tarefa = new Thread(net);
+					tarefa.start();
+					
+					//while(tarefa.isAlive() ) {
+						
+					//}
+					
+					arrayTarefa.add(tarefa);
+					
+					arrayNet.add(net);
+					
+					//Vector vetorInfoServer = new Vector();
+				
+				}
+				
+				try{
+					
+					Thread.sleep(1);
+					
+				}catch(InterruptedException e1) {
+					e1.printStackTrace();
+				}
+				// Verifica as tarefas que ainda estao em execucao
+				// aguarda finalizacao de todas para continuar.
+				
+				while(arrayTarefa.size() > 0) {
+					
+				
+					for(int i = 0; i < arrayTarefa.size(); i++ ) {
+					
+						Thread tarefa = arrayTarefa.get(i);
+					
+						if( ! tarefa.isAlive() ) { 
+							arrayTarefa.remove(i);
+							i = 0;
+						}
+					
+					}
+					
+				}
+				// Pega as informacoes coletadas e exibe na tela.
+				int indice = 0;
+				
+				for(int i = 0 ; i < arrayNet.size() ; i++) {
+					
+					ConnectThread net = arrayNet.get(i);
+					
+					vetorInfoServer = net.returnVector();
+					System.out.println(vetorInfoServer.size());
+					
+					//while(vetorInfoServer.size() < 7) {
+						//vetorInfoServer = net.returnVector();
+						System.out.println(vetorInfoServer.size());
+					//}
+					
+					areaResultado.append( "Servidor: " + (String) vetorServidores.get(indice) + "\n\n");
+					areaResultado.append("Processador: " + vetorInfoServer.get(0) + "\n");
+					areaResultado.append("Numero de Cores: " + vetorInfoServer.get(1) + "\n");
+					areaResultado.append("Mhz (Max) : " + vetorInfoServer.get(2) + "\n");
+					areaResultado.append("Mhz : " + vetorInfoServer.get(3) + "\n");
+					areaResultado.append("Uso de CPU (%) : " + vetorInfoServer.get(4) + "\n");
+					areaResultado.append("Memoria Total: " + vetorInfoServer.get(5)+ "\n");
+					areaResultado.append("Memoria Disponivel: " + vetorInfoServer.get(6) + "\n");
+					areaResultado.append("Resultado NetStat:\n\n " + vetorInfoServer.get(7) + "\n\n");
+					
+					//areaResultado.append("Processador: " + vetorInfoServer.get(0) + "\n");
+					
+					indice = indice + 2;
+
+				}
+				
+			}
+			
+		});
+		
+		
+	}
+
+}

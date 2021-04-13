@@ -1,0 +1,115 @@
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
+import java.net.Socket;
+import java.sql.SQLException;
+import java.util.Date;
+import java.util.Vector;
+
+
+public class ServerSession implements Runnable{
+
+	private Socket socket;
+	//private DBConnect dbConnect;
+	private ObjectOutputStream output;
+	private ObjectInputStream input;
+	private String linha,linha2,linha3,linha4;
+
+	public ServerSession(Socket s) {
+		
+		// TODO Auto-generated constructor stub
+		try{
+			
+			 //dbConnect = db;
+			 
+			
+			 socket = s;
+			 output = new ObjectOutputStream( socket.getOutputStream());
+			 input = new ObjectInputStream( socket.getInputStream());
+		
+			 output.flush();
+		
+		}catch(IOException e) {
+			e.printStackTrace();
+		}
+		
+	}
+	
+	public void run() {
+		
+		try{
+			
+		
+		linha = (String) input.readObject();
+		System.out.println(linha);
+		
+		if(linha.equals("<getInfoServer>")) {
+			
+			// Causa de vazamento de 
+			WmiConnect wmiConnect = new WmiConnect(); // desabilitado para teste
+			
+			Vector vetorInfoServer = new Vector();
+			//Vector vetorDadosUsuarios;
+			//vetorDados.add("FullName");
+			//vetorDados.add("Name");
+			//vetorDados.add("Disabled");
+			//vetorDados.add("Domain");
+			//vetorDados.add("Description");
+			
+			//A linha abaixo foi desabiltada para teste de memory leak
+			
+			vetorInfoServer = wmiConnect.executa("SELECT FullName FROM Win32_UserAccount","FullName","localhost","","");
+			//vetorDadosUsuarios = dbConnect.retornaListaUsuarios();
+			
+			//wmiConnect.executa("SELECT FullName FROM Win32_UserAccount",vetorDados,"localhost","","");
+			
+			// Thread tarefaWmi = new Thread(wmiConnect);
+			// tarefaWmi.start();
+			
+			//while(tarefaWmi.isAlive()) {
+				
+			//	System.out.println("Estou vivo");
+			//}
+			// tarefaWmi = null;
+			
+			// vetorDadosUsuarios = wmiConnect.getResultado();
+			wmiConnect = null;
+			output.writeObject(vetorInfoServer); //desabilitado para teste
+			//output.writeObject(vetorDados); // habilitado para teste
+			output.flush();
+			//wmiConnect = null; // desabilitado para teste
+			
+			vetorInfoServer.clear();
+			vetorInfoServer = null;
+			
+			// As 2 linhas abaixo foram desabilitdaasa para teste
+			//vetorDadosUs.clear();
+			//vetorDadosUsuarios = null;
+			
+			//vetorDados.clear();
+			//vetorDados = null;
+			
+			
+		}
+		
+		socket.close();
+		output.close();
+		input.close();
+		
+		output = null;
+		input = null;
+		socket = null;
+		
+	}catch(IOException e) {
+		e.printStackTrace();
+	}catch(ClassNotFoundException e) {
+		e.printStackTrace();
+	}catch(InterruptedException e) {
+		e.printStackTrace();
+	}catch(Exception e) {
+		e.printStackTrace();
+	}
+
+	} // fim do construtor
+
+}

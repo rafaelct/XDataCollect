@@ -1,0 +1,65 @@
+import java.awt.Color;
+import java.awt.Font;
+import java.awt.Insets;
+import java.util.ArrayList;
+import java.util.Vector;
+
+import javax.swing.Box;
+import javax.swing.JCheckBox;
+import javax.swing.JLabel;
+import javax.swing.JPanel;
+import javax.swing.JScrollPane;
+import javax.swing.border.EmptyBorder;
+import javax.swing.plaf.basic.BasicBorders;
+import javax.swing.plaf.basic.BasicBorders.SplitPaneBorder;
+
+import net.miginfocom.swing.MigLayout;
+
+
+public class GuiSelGrupos {
+
+	JPanel panel;
+	JScrollPane scrollPane;
+	
+	Box box;
+	
+	public GuiSelGrupos(Vector vetGrupos) {
+		// TODO Auto-generated constructor stub
+		panel = new JPanel();
+		panel.setLayout( new MigLayout("nogrid"));
+		panel.setBackground(java.awt.Color.white);
+		
+		
+		//SplitPaneBorder basicBorder = new BasicBorders.SplitPaneBorder(new Color(0,255,0), new Color(255,0,0) );
+		 
+		//box = Box.createHorizontalBox();
+		
+		//JScrollPane scrollPane = new JScrollPane();
+		
+		ArrayList<CpSelGrupos> arrayCheck = new ArrayList<CpSelGrupos>();
+		
+		for(int i = 0 ; i < vetGrupos.size() ; i++ ) {
+			
+			CpSelGrupos cpSelGrupos = new CpSelGrupos( (String) vetGrupos.get(i) );
+			
+			panel.add( cpSelGrupos.getPanel() ,"width 350:350:350,height 60:60:60,wrap");
+			
+			arrayCheck.add( cpSelGrupos );
+			
+		}
+		scrollPane = new JScrollPane(panel);
+		//scrollPane.add(panel);
+		
+		//box.add(scrollPane);
+		//panel.add(box,"width 200:200:200,height 400:400:400,wrap");
+		
+	}
+	
+	public JScrollPane getPanel() {
+		
+		return scrollPane;
+		
+	}
+
+
+}

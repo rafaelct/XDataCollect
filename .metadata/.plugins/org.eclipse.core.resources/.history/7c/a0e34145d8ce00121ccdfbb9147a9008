@@ -1,0 +1,56 @@
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+
+import javax.swing.Icon;
+import javax.swing.ImageIcon;
+import javax.swing.JButton;
+import javax.swing.JPanel;
+
+import net.miginfocom.swing.MigLayout;
+
+
+public class GuiBtControles {
+
+	JPanel panel;
+	GuiServidores guiServidores;
+	GuiCadCmd guiCadCmd;
+	
+	public GuiBtControles(GuiServidores guiServ,GuiCadCmd guiCmd) {
+		// TODO Auto-generated constructor stub
+		
+		panel = new JPanel();
+		panel.setLayout( new MigLayout("nogrid"));
+		guiServidores = guiServ;
+		guiCadCmd = guiCmd;
+		
+		JButton btSetaEsquerda = new JButton("<");
+		JButton btSetaExcluir = new JButton("X");
+		JButton btSetaDireita = new JButton(">");
+		
+		Icon iconSetaEsquerda = new ImageIcon( getClass().getResource("seta_esquerda.png") );
+		Icon iconSetaDireita = new ImageIcon( getClass().getResource("seta_direita.png") );
+
+		btSetaEsquerda.setIcon(iconSetaEsquerda);
+		btSetaDireita.setIcon(iconSetaDireita);
+		
+		panel.add(btSetaEsquerda,"wrap");
+		panel.add(btSetaExcluir,"wrap");
+		panel.add(btSetaDireita,"wrap");
+		
+		btSetaEsquerda.addActionListener( new ActionListener() {
+
+			@Override
+			public void actionPerformed(ActionEvent arg0) {
+				// TODO Auto-generated method stub
+				
+				guiServidores.adicionaComando( guiCadCmd.getCmdSelecionado() );
+			}
+			
+		});
+	}
+
+	public JPanel getPanel() {
+		return panel;
+	}
+
+}

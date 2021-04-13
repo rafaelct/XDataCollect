@@ -1,0 +1,47 @@
+import javax.swing.JButton;
+import javax.swing.JLabel;
+import javax.swing.JPanel;
+import javax.swing.JTextField;
+
+import net.miginfocom.swing.MigLayout;
+
+
+public class GuiCadCmd {
+
+	JPanel panel;
+	
+	public GuiCadCmd() {
+		// TODO Auto-generated constructor stub
+
+		panel = new JPanel();
+		panel.setLayout( new MigLayout("nogrid"));
+
+		JButton btnCmdAdd = new JButton("Adicionar");
+		JButton btnCmdDel = new JButton("Remover");
+	
+		JLabel lblCmdDesc = new JLabel("Descrição:");
+		final JTextField txtCmdDesc = new JTextField();
+		
+		JLabel lblCmdExec = new JLabel("Comando:");
+		final JTextField txtCmdExec = new JTextField();
+		
+
+		final Tabela tabelaCmd = new Tabela();
+		
+		tabelaCmd.init("CS");
+		tabelaCmd.setVisivel(true);
+
+		panel.add(lblCmdDesc);
+		panel.add(txtCmdDesc,"width 300:300:300,height 20:20:20,wrap");
+
+		panel.add(lblCmdExec);
+		panel.add(txtCmdExec,"width 300:300:300,height 20:20:20,wrap");
+		panel.add(tabelaCmd.get(),"width 530:530:530,height 200:200:200,wrap");
+
+	}
+
+	public JPanel getPanel() {
+		return panel;
+	}
+
+}

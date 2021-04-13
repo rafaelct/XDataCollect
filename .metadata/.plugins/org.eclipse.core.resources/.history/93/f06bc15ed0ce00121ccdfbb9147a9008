@@ -1,0 +1,103 @@
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.util.Vector;
+
+import javax.swing.Icon;
+import javax.swing.ImageIcon;
+import javax.swing.JButton;
+import javax.swing.JLabel;
+import javax.swing.JOptionPane;
+import javax.swing.JPanel;
+import javax.swing.JTextField;
+
+import net.miginfocom.swing.MigLayout;
+
+
+public class GuiCadCmd {
+
+	JPanel panel;
+	Tabela tabelaCmd;
+	
+	public GuiCadCmd() {
+		// TODO Auto-generated constructor stub
+
+		panel = new JPanel();
+		panel.setLayout( new MigLayout("nogrid"));
+
+		JButton btnCmdAdd = new JButton("Adicionar");
+		JButton btnCmdDel = new JButton("Remover");
+		btnCmdAdd.setIcon( (Icon) new ImageIcon( getClass().getResource("/img/certo.gif") ).getImage() );
+		
+		
+		JLabel lblCmdDesc = new JLabel("Descrição:");
+		final JTextField txtCmdDesc = new JTextField();
+		
+		JLabel lblCmdExec = new JLabel("Comando:");
+		final JTextField txtCmdExec = new JTextField();
+		
+
+		tabelaCmd = new Tabela();
+		
+		tabelaCmd.init("CS");
+		tabelaCmd.setVisivel(true);
+
+		panel.add(lblCmdDesc);
+		panel.add(txtCmdDesc,"width 300:300:300,height 20:20:20,wrap");
+
+		panel.add(lblCmdExec);
+		panel.add(txtCmdExec,"width 300:300:300,height 20:20:20");
+		panel.add(btnCmdAdd);
+		panel.add(btnCmdDel,"wrap");
+		
+		panel.add(tabelaCmd.get(),"width 430:430:430,height 200:200:200,wrap");
+
+		btnCmdAdd.addActionListener(new ActionListener() {
+			
+			public void actionPerformed(ActionEvent e) {
+				
+				
+				
+				if(txtCmdDesc.getText().trim().equals("") || txtCmdExec.getText().trim().equals("") ) {
+				
+					JOptionPane.showMessageDialog(null, "Campos Descrição e/ou Comando não podem estar vazios.", "Erro: Validação de campos", JOptionPane.ERROR_MESSAGE );
+					return;
+					
+				}
+
+				Vector vetorDados = new Vector();
+				vetorDados.add( txtCmdDesc.getText() );
+				vetorDados.add( txtCmdExec.getText() );
+				tabelaCmd.adicionaLinha(vetorDados);
+				
+				txtCmdDesc.setText("");
+				txtCmdExec.setText("");
+				
+			}
+			
+		});
+		
+		btnCmdDel.addActionListener(new ActionListener() {
+			
+			public void actionPerformed(ActionEvent e) {
+				tabelaCmd.removeLinha(tabelaCmd.getItemSelecionado(),true);
+			}
+				
+				
+				
+			
+		});		
+
+	}
+
+	public JPanel getPanel() {
+		return panel;
+	}
+
+	public Vector getCmdSelecionado() {
+		// TODO Auto-generated method stub
+		Vector vetDados = tabelaCmd.getDadosSelecionados();
+		
+		return vetDados;
+	}
+
+}

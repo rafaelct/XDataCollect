@@ -1,0 +1,44 @@
+import javax.swing.JButton;
+import javax.swing.JFrame;
+import javax.swing.JLabel;
+import javax.swing.JPanel;
+import javax.swing.JTextArea;
+
+import net.miginfocom.swing.MigLayout;
+
+
+public class Janela {
+
+	public Janela() {
+		// TODO Auto-generated constructor stub
+		
+		JFrame gui = new JFrame("Dedo Duro v2.0");
+		JPanel panel = new JPanel();
+		panel.setLayout( new MigLayout("nogrid"));
+		gui.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+		gui.setBounds(0, 0, 1024, 700);
+		
+		JButton botaoExecuta = new JButton("Pegar informações dos servidores");
+		JLabel labelStatus = new JLabel("Status:");
+		JLabel labelResultado = new JLabel("Resultado:");
+		
+		JTextArea areaStatus = new JTextArea();
+		JTextArea areaResultado = new JTextArea();
+		
+		
+		panel.add(botaoExecuta,"wrap");
+		panel.add(labelStatus,"wrap");
+		panel.add(areaStatus,"wrap,width 800:800:800,height 100:100:100");
+		panel.add(labelResultado,"wrap");
+		panel.add(areaResultado,"wrap");
+		
+		
+		gui.add(panel);
+		
+		
+		gui.setVisible(true);
+		
+		
+	}
+
+}

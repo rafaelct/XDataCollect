@@ -1,0 +1,7 @@
+Codigos de erros do Dedo Duro v2.0
+
+0 = Ok sem erros
+1 = Erro de E/S
+2 = Diretorio ATF especificado nao existe no servidor.
+3 = sub-diretorio Salvar nao existe no diretrio ATF especificado no servidor.
+4 = Erro de Conexao em uso

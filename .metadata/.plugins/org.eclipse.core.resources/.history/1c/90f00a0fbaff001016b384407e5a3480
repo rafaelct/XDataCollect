@@ -1,0 +1,179 @@
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
+import java.io.OutputStream;
+import java.net.Socket;
+import java.sql.SQLException;
+import java.util.Date;
+import java.util.Vector;
+
+
+public class ServerSession implements Runnable{
+
+	private Socket socket;
+	//private DBConnect dbConnect;
+	private ObjectOutputStream output;
+	private ObjectInputStream input;
+	private String linha,linha2,linha3,linha4;
+
+	public ServerSession(Socket s) {
+		
+		// TODO Auto-generated constructor stub
+		try{
+			
+			 //dbConnect = db;
+			 
+			
+			 socket = s;
+			 output = new ObjectOutputStream( socket.getOutputStream());
+			 input = new ObjectInputStream( socket.getInputStream());
+		
+			 output.flush();
+		
+		}catch(IOException e) {
+			e.printStackTrace();
+		}
+		
+	}
+	
+	public void run() {
+		
+		try{
+			
+		
+		linha = (String) input.readObject();
+		System.out.println(linha);
+		
+		if(linha.equals("<getInfoServer>")) {
+			
+			// Causa de vazamento de 
+			WmiConnect wmiConnect = new WmiConnect(); // desabilitado para teste
+			
+			Vector vetorInfoServer = new Vector();
+			//Vector vetorDadosUsuarios;
+			//vetorDados.add("FullName");
+			//vetorDados.add("Name");
+			//vetorDados.add("Disabled");
+			//vetorDados.add("Domain");
+			//vetorDados.add("Description");
+			
+			// Informações de CPU
+			
+			vetorInfoServer.add( wmiConnect.executaStr("SELECT Name FROM CIM_Processor","Name","localhost","","") );
+			vetorInfoServer.add( wmiConnect.executaStr("SELECT * FROM CIM_Processor","NumberOfCores","localhost","","") );
+			vetorInfoServer.add( wmiConnect.executaStr("SELECT MaxClockSpeed FROM CIM_Processor","MaxClockSpeed","localhost","","") );
+			vetorInfoServer.add( wmiConnect.executaStr("SELECT CurrentClockSpeed FROM CIM_Processor","CurrentClockSpeed","localhost","","") );
+			vetorInfoServer.add( wmiConnect.executaStr("SELECT PercentProcessorTime FROM Win32_PerfFormattedData_PerfOS_Processor Where Name='_Total'","PercentProcessorTime","localhost","","") );
+
+			// Informações de Memoria
+			
+			vetorInfoServer.add( wmiConnect.executaStr("SELECT * FROM CIM_ComputerSystem","TotalPhysicalMemory","localhost","","") );
+			vetorInfoServer.add( wmiConnect.executaStr("SELECT * FROM Win32_PerfFormattedData_PerfOS_Memory","AvailableBytes","localhost","","") );
+			//vetorInfoServer.add( wmiConnect.executaStr("SELECT Name FROM CIM_Processor","Name","localhost","","") );
+			//vetorInfoServer.add( wmiConnect.executaStr("SELECT Name FROM CIM_Processor","Name","localhost","","") );
+
+			//ProcessBuilder processBuilder = new ProcessBuilder("netstat");
+			
+			//Process p = processBuilder.start();
+			
+			Process p = Runtime.getRuntime().exec("netstat");
+			
+			//int codigoRetorno = p.waitFor();
+			
+			//try{
+			//	Thread.sleep(10000);
+			//}catch(InterruptedException e) {
+			//	e.printStackTrace();
+			//}
+			
+			//boolean erro = true;
+			
+			byte b[] = new byte[10];
+			
+			InputStream in = p.getInputStream();
+			StringBuffer str = new StringBuffer();
+			
+			
+			while( in.read(b) > -1) {
+				str.append(new String(b));
+				b[0] = 0;
+				b[1] = 0;
+				b[2] = 0;
+				b[3] = 0;
+				b[4] = 0;
+				b[5] = 0;
+				b[6] = 0;
+				b[7] = 0;
+				b[8] = 0;
+				b[9] = 0;
+			
+				
+			}
+			System.out.println(str);
+
+			vetorInfoServer.add(str);
+			
+			CompactadorZip.compactarParaZip("dedoduro.zip", "g:\\Apostilas\\dot net");
+			//System.out.println("Codigo de Retorno" + codigoRetorno);
+			//wmiConnect.executa("SELECT FullName FROM Win32_UserAccount",vetorDados,"localhost","","");
+			
+			/*
+			byte b[] = new byte[4096];
+			
+			InputStream in = p.getInputStream();
+			in.read(b);
+			String str = new String(b);
+			System.out.println(str);
+			
+			*/
+			// Thread tarefaWmi = new Thread(wmiConnect);
+			// tarefaWmi.start();
+			
+			//while(tarefaWmi.isAlive()) {
+				
+			//	System.out.println("Estou vivo");
+			//}
+			// tarefaWmi = null;
+			
+			// vetorDadosUsuarios = wmiConnect.getResultado();
+			wmiConnect = null;
+			output.writeObject(vetorInfoServer); //desabilitado para teste
+			//output.writeObject(vetorDados); // habilitado para teste
+			output.flush();
+			//wmiConnect = null; // desabilitado para teste
+			
+			vetorInfoServer.clear();
+			vetorInfoServer = null;
+			
+			// As 2 linhas abaixo foram desabilitdaasa para teste
+			//vetorDadosUs.clear();
+			//vetorDadosUsuarios = null;
+			
+			//vetorDados.clear();
+			//vetorDados = null;
+			
+			
+		}
+		
+		socket.close();
+		output.close();
+		input.close();
+		
+		output = null;
+		input = null;
+		socket = null;
+		
+	}catch(IOException e) {
+		e.printStackTrace();
+	}catch(ClassNotFoundException e) {
+		e.printStackTrace();
+	}catch(InterruptedException e) {
+		e.printStackTrace();
+	}catch(Exception e) {
+		e.printStackTrace();
+	}
+
+	} // fim do construtor
+
+}

@@ -1,0 +1,167 @@
+import java.net.BindException;
+import java.net.ServerSocket;
+import java.net.Socket;
+import java.text.Collator;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Vector;
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
+
+/* X Data Collect Server v3.0
+ * Compativel com a versão X Data Collect Cliente v3.0
+ * Atualizado em: 26/09/2012 - v2.2
+ * Atualizado em: 21/05/2013 - v3.0
+ * 
+ * Desenvolvedor: Rafael Costa Teixeira
+ * 
+ */
+
+public class Server {
+
+	private ServerSocket serverSocket;
+	private Socket socket;
+	ObjectOutputStream output;
+	ObjectInputStream input;
+	
+	//private DBConnect dbConnect;
+	
+	public Server() {
+		/*
+		System.out.println("###################################");
+		System.out.println("##    X DATA COLLECT SERVER V3.0 ##");
+		System.out.println("###################################");
+		*/
+		
+		// TODO Auto-generated constructor stub
+		try{
+			
+			try {
+		serverSocket = new ServerSocket(4001);
+			} catch( BindException e) {
+				e.printStackTrace();
+				System.exit(1);
+				
+			}
+		 
+		// ATENÇÃO NÃO TIRAR O PRIMEIRO # (JOGO DA VELHA) É UTILIZADO PELO X DATA COLLECT SERVER START NA EXECUÇÃO DO X DATA COLLECT SERVER.
+			
+		System.out.println("###################################");
+		System.out.println("##    X DATA COLLECT SERVER " + Versao.versao()+ " ##");
+		System.out.println("###################################");
+		 
+		 //dbConnect.initDB();
+		// Vector vetorDadosUsuarios = new Vector();
+		 Vector vetor = new Vector();
+		 
+		 WmiConnect wmiConnect = new WmiConnect();
+		 
+		 
+		 //Vector vetorDados = new Vector();
+		 
+		// vetorDados.add("FullName");
+		 
+		//vetorDadosUsuarios = wmiConnect.executa("SELECT FullName FROM Win32_UserAccount","FullName","localhost","","");
+		//Collections.sort(vetorDadosUsuarios,Collator.getInstance() );
+
+		//vetorDados.clear();
+		//vetorDados = null;
+		
+		wmiConnect = null;
+		
+		//dbConnect.insertUsuario(vetorDadosUsuarios);
+		
+		//vetorDadosUsuarios.clear();
+		//vetorDadosUsuarios = null;
+		
+		// Scheduller scheduller = new Scheduller(dbConnect);
+		 
+		 //Thread thread1 = new Thread(scheduller);
+		 //thread1.start();
+		 
+		 // Desabilitado linhas abaixo , pelo motivo do cache sera feito no cliente.
+		 
+		 //AtualizaListaUsuarios atualizaListaUsuarios = new AtualizaListaUsuarios(dbConnect);
+		 
+		// Thread thread2 = new Thread(atualizaListaUsuarios);
+		// thread2.start();
+		 
+		 
+		// String linha,linha2,linha3,linha4;
+		ArrayList<Thread> arrayThread = new ArrayList<Thread>();
+		
+		while(true) {
+			
+			socket = serverSocket.accept();
+			System.out.println("Conectou !!!");
+			
+			
+			// verifica se existe uma conexao ativa , caso existe devolve erro e desconecta
+			
+			/*
+			if ( arrayThread.size() > 0 ) {
+				
+				Thread tarefa = arrayThread.get(0);
+				
+				if( tarefa.isAlive() ) {
+					vetor.add("<ERRO-4>");
+					
+					output = new ObjectOutputStream( socket.getOutputStream());
+					input = new ObjectInputStream( socket.getInputStream());
+				
+					 output.flush();
+
+					input.readObject();
+					input.readObject();
+					
+					output.writeObject(4);
+					output.flush();
+					
+					//output.writeObject(vetor);
+					//output.flush();
+					
+					input.close();
+					output.close();
+					
+					input = null;
+					output = null;
+					
+					vetor.clear();
+					
+				} else {
+					arrayThread.clear();
+				}
+			}
+			
+			*/
+			// Só estabelece conexao se nao houver nenhuma conexao ativa no momento.
+			
+			//if( arrayThread.size() == 0 ) {
+				
+			
+				ServerSession serverSession = new ServerSession(socket);
+				
+				Thread tarefaSession = new Thread(serverSession);
+				tarefaSession.start();
+				arrayThread.add(tarefaSession);
+			
+			// }
+				
+			//output = new ObjectOutputStream( socket.getOutputStream());
+			//input = new ObjectInputStream( socket.getInputStream());
+			
+			// output.flush();
+			
+		}
+		
+		}catch(IOException e) {
+			e.printStackTrace();
+		}catch(Exception e) {
+			e.printStackTrace();
+		}
+		
+	}
+	
+
+}

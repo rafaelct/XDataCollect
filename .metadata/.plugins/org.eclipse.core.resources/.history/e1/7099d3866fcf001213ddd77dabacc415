@@ -1,0 +1,48 @@
+import java.util.ArrayList;
+import java.util.Vector;
+
+import javax.swing.Box;
+import javax.swing.JCheckBox;
+import javax.swing.JPanel;
+import javax.swing.JScrollPane;
+
+import net.miginfocom.swing.MigLayout;
+
+
+public class GuiSelServidores {
+
+	JPanel panel;
+	Box box;
+	public GuiSelServidores(Vector vetServidores) {
+		// TODO Auto-generated constructor stub
+		panel = new JPanel();
+		//panel.setLayout( new MigLayout("nogrid"));
+
+		box = Box.createHorizontalBox();
+		
+		//JScrollPane scrollPane = new JScrollPane();
+		
+		ArrayList<JCheckBox> arrayCheck = new ArrayList<JCheckBox>();
+		
+		for(int i = 0 ; i < vetServidores.size() ; i=i+2 ) {
+			JCheckBox checkBox = new JCheckBox( (String) vetServidores.get(i) );
+			
+			panel.add(checkBox);
+			arrayCheck.add(checkBox);
+			
+		}
+		JScrollPane scrollPane = new JScrollPane(panel);
+		//scrollPane.add(panel);
+		
+		box.add(scrollPane);
+		//panel.add(box,"width 200:200:200,height 400:400:400,wrap");
+		
+	}
+	
+	public Box getPanel() {
+	
+		return box;
+		
+	}
+
+}

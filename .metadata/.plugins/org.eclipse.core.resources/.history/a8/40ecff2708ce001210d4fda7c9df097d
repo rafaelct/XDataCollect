@@ -1,0 +1,855 @@
+import java.awt.Color;
+import java.awt.Desktop;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.io.File;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.Vector;
+
+import javax.swing.JButton;
+import javax.swing.JComboBox;
+import javax.swing.JFileChooser;
+import javax.swing.JFrame;
+import javax.swing.JLabel;
+import javax.swing.JMenu;
+import javax.swing.JMenuBar;
+import javax.swing.JMenuItem;
+import javax.swing.JOptionPane;
+import javax.swing.JPanel;
+import javax.swing.JRadioButton;
+import javax.swing.JScrollPane;
+import javax.swing.JTabbedPane;
+import javax.swing.JTextArea;
+import javax.swing.JTextField;
+import javax.swing.SwingWorker;
+import javax.swing.filechooser.FileFilter;
+import javax.swing.filechooser.FileNameExtensionFilter;
+
+import net.miginfocom.swing.MigLayout;
+
+public class Janela {
+
+	JButton botaoExecuta;
+	JTextArea areaStatus,areaResultado;
+	//TextAreaStatus textAreaStatus;
+	JLabel lbProgresso;
+	//MyTask myTask;
+	//MyTaskProgresso myTaskProgresso;
+	String titulo = "XDC - X Data Collect - Administrator - v3.0";
+	// Alterado na v3.0
+	JComboBox comboServidores;
+	String diretorioATFLocalStr;
+	
+	Vector vetorInfoServidores;
+	
+	// fim da alteração v3.0
+	
+	public Janela() {
+		// TODO Auto-generated constructor stub
+		
+		final JFrame gui = new JFrame(titulo);
+		final JPanel panel = new JPanel();
+		panel.setLayout( new MigLayout("nogrid"));
+		
+		final JPanel panelGeral = new JPanel();
+		panelGeral.setLayout( new MigLayout("nogrid"));
+
+		final JPanel panelServidores = new JPanel();
+		panelServidores.setLayout( new MigLayout("nogrid"));
+	
+		gui.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+		gui.setBounds(0, 0, 1024, 700);
+
+		JTabbedPane tab = new JTabbedPane();
+		//JTabbedPane tabServidores = new JTabbedPane();
+		
+		JLabel lblServidores = new JLabel("Servidores:");
+		
+		JLabel lblNomeVersao = new JLabel("Versão:");
+		final JLabel lblVersao = new JLabel("");
+		lblVersao.setForeground(Color.blue );
+		
+		comboServidores = new JComboBox();
+		comboServidores.addItem("<Selecione>");
+		
+		JLabel lblCmdDesc = new JLabel("Descrição:");
+		final JTextField txtCmdDesc = new JTextField();
+		
+		JLabel lblCmdExec = new JLabel("Comando:");
+		final JTextField txtCmdExec = new JTextField();
+		
+		JButton btnCmdAdd = new JButton("Adicionar");
+		JButton btnCmdDel = new JButton("Remover");
+		final JButton btnSalvar = new JButton("Salvar Configurações");
+		
+		final Tabela tabela = new Tabela();
+		tabela.init("CS");
+		tabela.setVisivel(true);
+		
+		// Aba Configuração de Servidores
+		
+		JLabel lbCadastrarServer = new JLabel("Cadastrar Servidores");
+		JLabel lblAtualizarServidores = new JLabel("Atualizar X Data Collect Server (*.jar):");
+		
+		JLabel lbServidor1 = new JLabel("Nome do Servidor: ");
+		JLabel lbhostip1 = new JLabel("Hostname/IP:");
+		final JTextField entryServidor1 = new JTextField(25);
+		final JTextField entryHostip1 = new JTextField(10);
+		
+		final JRadioButton opcaoSalvarTodos = new JRadioButton("Salvar em todos Servidores");
+		
+		final JRadioButton opcaoSalvar = new JRadioButton("Salvar apenas no servidor " + comboServidores.getSelectedItem() );
+
+		if(comboServidores.getSelectedItem().equals("<Selecione>") ) {
+			opcaoSalvar.setVisible(false);
+			opcaoSalvarTodos.setSelected(true);
+			opcaoSalvar.setSelected(false);
+			
+		}
+		
+		//JLabel lbDiretorioATF = new JLabel("Pasta onde estão arquivos ATF no servidor: ");
+		
+		//final JTextField entryDiretorioATF = new JTextField(25);
+		
+		
+		
+		final Tabela tabelaServidores = new Tabela();
+		tabelaServidores.init("CS");
+		tabelaServidores.setVisivel(true);
+		
+		
+		final Configuracoes configuracoes = new Configuracoes();
+		
+		configuracoes.lerConf();
+		
+		vetorInfoServidores = new Vector();
+
+		
+		vetorInfoServidores = configuracoes.getInfoServidores();
+
+		//entryDiretorioATF.setText(configuracoes.getDiretorioATF() );
+		
+		Vector vetorDados = new Vector();
+		
+		for(int linha = 0;linha < vetorInfoServidores.size();linha = linha+2) {
+			
+			vetorDados.add( (String) vetorInfoServidores.get(linha) );
+			vetorDados.add( (String) vetorInfoServidores.get(linha+1) );
+			
+			tabelaServidores.adicionaLinha(vetorDados);
+			comboServidores.addItem( vetorInfoServidores.get(linha) + "-" + vetorInfoServidores.get(linha+1) );
+			vetorDados.clear();
+			
+		}
+		
+		JButton botaoAdicionar = new JButton("Adiciona");
+		JButton botaoExcluir = new JButton("Excluir Servidor");
+		JButton botaoConfirma = new JButton("Confirma");
+		JButton botaoAtualizaServidores = new JButton("Atualizar X Data Collect Server...");
+				
+		panelServidores.add(lbCadastrarServer,"wrap");
+		panelServidores.add(lbServidor1);
+		panelServidores.add(entryServidor1);
+		panelServidores.add(lbhostip1);
+		panelServidores.add(entryHostip1);
+		panelServidores.add(botaoAdicionar,"wrap");
+		
+
+		panelServidores.add(tabelaServidores.get(),"width 500:500:500,height 200:200:200");
+		panelServidores.add(botaoExcluir,"wrap");
+		//panelServidores.add(lbDiretorioATF);
+		//panelServidores.add(entryDiretorioATF,"wrap");
+		panelServidores.add(botaoConfirma,"wrap");
+		panelServidores.add(lblAtualizarServidores);
+		panelServidores.add(botaoAtualizaServidores);
+		// Geral
+		
+		panelGeral.add(tab,"width 1000:1000:1000,height 650:650:650");
+		//panel.add(tabServidores);
+		
+		panel.add(lblServidores);
+		panel.add(comboServidores);
+		
+		panel.add(lblNomeVersao);
+		panel.add(lblVersao,"wrap");
+		
+		panel.add(lblCmdDesc);
+		panel.add(txtCmdDesc,"width 300:300:300,height 20:20:20");
+
+		panel.add(lblCmdExec);
+		panel.add(txtCmdExec,"width 300:300:300,height 20:20:20");
+		panel.add(btnCmdAdd);
+		panel.add(btnCmdDel,"wrap");
+		
+		
+		//fim da alteração v3.0
+		panel.add(tabela.get(),"width 530:530:530,height 200:200:200,wrap");
+
+		
+		panel.add(opcaoSalvarTodos,"wrap");
+		panel.add(opcaoSalvar,"wrap");
+
+		panel.add(btnSalvar);
+		
+		//panel.add(lbProgresso);
+		
+
+		tab.addTab("Comandos", panel);
+		tab.addTab("Servidores", panelServidores);
+		
+		gui.add(panelGeral);
+		
+		
+		gui.setVisible(true);
+		
+		// Faz verificação se todos os servidores estão com a mesma versão do X Data Collect Server
+		checaVersoes();
+		
+		btnCmdAdd.addActionListener(new ActionListener() {
+			
+			public void actionPerformed(ActionEvent e) {
+				
+				
+				
+				if(txtCmdDesc.getText().trim().equals("") || txtCmdExec.getText().trim().equals("") ) {
+				
+					JOptionPane.showMessageDialog(null, "Campos Descrição e/ou Comando não podem estar vazios.", "Erro: Validação de campos", JOptionPane.ERROR_MESSAGE );
+					return;
+					
+				}
+
+				Vector vetorDados = new Vector();
+				vetorDados.add( txtCmdDesc.getText() );
+				vetorDados.add( txtCmdExec.getText() );
+				tabela.adicionaLinha(vetorDados);
+				
+				txtCmdDesc.setText("");
+				txtCmdExec.setText("");
+				
+			}
+			
+		});
+		
+		btnCmdDel.addActionListener(new ActionListener() {
+			
+			public void actionPerformed(ActionEvent e) {
+				tabela.removeLinha(tabela.getItemSelecionado(),true);
+			}
+				
+				
+				
+			
+		});		
+		
+		btnSalvar.addActionListener(new ActionListener() {
+			
+			public void actionPerformed(ActionEvent e) {
+
+				Vector vetorServidores = new Vector(); // guarda lista de servidores a consultar
+				Vector vetorInfoServer = new Vector(); // guarda informaçoes do servidor consultado
+				
+				ArrayList<ConnectThreadAdm> arrayNet = new ArrayList<ConnectThreadAdm>();
+				ArrayList<Thread> arrayTarefa = new ArrayList<Thread>();
+
+			//	if( comboServidores.getSelectedItem().equals("<Selecione>") ) {
+				if( opcaoSalvarTodos.isSelected() ) {
+					
+					Configuracoes configuracoes = new Configuracoes(); // abre configuracoes
+					
+					configuracoes.lerConf(); // le as configuracoes
+
+					// Consulta todos os servidores especificados na configuracao
+					vetorServidores = configuracoes.getInfoServidores(); // pega informacao da configuracao
+
+					for(int linha = 0 ; linha < vetorServidores.size() ; linha = linha + 2 ) {
+						
+						
+						ConnectThreadAdm net = new ConnectThreadAdm( (String) vetorServidores.get(linha),(String) vetorServidores.get(linha+1) );
+						net.gravaConfigServer( tabela.getDados() );
+						
+						Thread tarefa = new Thread(net);
+						tarefa.start();
+						
+						//while(tarefa.isAlive() ) {
+						
+						//}
+					
+						arrayTarefa.add(tarefa);
+					
+						arrayNet.add(net);
+					
+						//Vector vetorInfoServer = new Vector();
+						
+					}
+					
+					try{
+						Thread.sleep(1);
+					}catch(InterruptedException e1) {
+						e1.printStackTrace();
+					}
+					
+					JanelaErroInfo janelaErroInfo = new JanelaErroInfo();
+					
+					
+					//textAreaStatus.reset();
+					//textAreaStatus.adicionarGreen("Coletando informações , Aguarde...");
+					// Verifica as tarefas que ainda estao em execucao
+					// aguarda finalizacao de todas para continuar.	
+					
+					int progressoIndice = 0;
+					
+					while(arrayTarefa.size() > 0) {
+						
+						
+						for(int i = 0; i < arrayTarefa.size(); i++ ) {
+							
+							//areaStatus.updateUI();
+							//gui.repaint(0, 0, 1024, 700);
+							Thread tarefa = arrayTarefa.get(i);
+							if( ! tarefa.isAlive() ) { 
+								arrayTarefa.remove(i);
+								i = 0;
+							}
+							
+						}
+						
+					}
+					
+					// Pega as informacoes coletadas e exibe na tela.
+					int indice = 0;
+					int codErro = 0;
+					
+					for(int i = 0 ; i < arrayNet.size() ; i++) {
+					
+						ConnectThreadAdm net = arrayNet.get(i);
+					
+						codErro = net.returnCod();
+						
+						if(codErro != 0 ) {
+							janelaErroInfo.adicionarTxtVermelho("\n !!! Falha de comunicação com Servidor " + (String) vetorServidores.get(indice) );
+						} else {
+							janelaErroInfo.adicionarTxtAzul("\nConfigurações Gravadas com sucesso no servidor " + net.getNomeServidor() );
+						}
+						
+						indice = indice + 2;
+						
+					}
+					
+					janelaErroInfo.setVisivel(true);
+
+
+				} else {
+					
+				
+					Vector vetorDadosTabela = tabela.getDados();
+					String server = (String) comboServidores.getSelectedItem();
+					String ipHostServer[] = server.split("-");
+					
+					ConnectAdm net = new ConnectAdm( ipHostServer[1] );
+					
+					net.gravaConfigServer(vetorDadosTabela);
+					int codErro = net.codRetorno();
+					
+					if( codErro != 0 ) {
+						JOptionPane.showMessageDialog(panelGeral, "!!! Falha de comunicação com Servidor " + ipHostServer[0] , "Erro: Servidor", JOptionPane.ERROR_MESSAGE );
+					} else {
+						JOptionPane.showMessageDialog(panelGeral, "Configurações Gravadas com sucesso no servidor " + ipHostServer[0], "Informação: Servidor",JOptionPane.INFORMATION_MESSAGE );
+					}
+				}
+
+				
+			}
+				
+				
+				
+			
+		});
+
+		comboServidores.addActionListener(new ActionListener() {
+			
+			public void actionPerformed(ActionEvent e) {
+
+				//if( comboServidores.getSelectedItem().equals("<Selecione>") ) {
+				if(comboServidores.getSelectedIndex() == 0 ) {
+					opcaoSalvar.setVisible(false);
+					opcaoSalvarTodos.setSelected(true);
+					opcaoSalvar.setSelected(false);
+					btnSalvar.setText("Salvar Configurações");
+
+				} else {
+					
+					tabela.removeAllLinhas();
+					String server = (String) comboServidores.getSelectedItem();
+					String ipHostServer[] = server.split("-");
+					
+					ConnectAdm net = new ConnectAdm( ipHostServer[1] );
+					
+					lblVersao.setText( net.versaoServidor() );
+
+					Vector vetConfigServidores = net.lerConfigServer();
+					
+					int codErro = net.codRetorno();
+					
+					if( codErro != 0 ) {
+						JOptionPane.showMessageDialog(panelGeral,"Erro ao obter informações de configuração do servidor.","Erro", JOptionPane.INFORMATION_MESSAGE);
+						return;
+					}
+					
+					/*
+					if(vetConfigServidores.size() == 0 ) {
+						return;
+					}
+					*/
+					
+					
+					for(int i = 0; i < vetConfigServidores.size();i=i+2) {
+						
+						Vector vetor = new Vector();
+						
+						vetor.add( (String) vetConfigServidores.get(i) );
+						vetor.add( (String) vetConfigServidores.get(i+1) );
+						
+						tabela.adicionaLinha(vetor);
+						vetor = null;
+					}
+					
+					String strServidorSelecionado[] = ((String) comboServidores.getSelectedItem()).split("-");
+					opcaoSalvar.setText("Salvar apenas no servidor " + strServidorSelecionado[0] );
+					opcaoSalvar.setVisible(true);
+					
+					//btnSalvar.setText("Salvar Configurações em " + strServidorSelecionado[0] );
+					
+				}
+
+				
+			}
+			
+		});
+		
+		opcaoSalvarTodos.addActionListener(new ActionListener() {
+			
+			public void actionPerformed(ActionEvent e) {
+
+				opcaoSalvarTodos.setSelected(true);
+				opcaoSalvar.setSelected(false);
+				//String strServidorSelecionado[] = ((String) comboServidores.getSelectedItem()).split("-");
+				btnSalvar.setText("Salvar Configurações");
+
+			}
+			
+		});
+
+		opcaoSalvar.addActionListener(new ActionListener() {
+			
+			public void actionPerformed(ActionEvent e) {
+
+				opcaoSalvarTodos.setSelected(false);
+				opcaoSalvar.setSelected(true);
+				String strServidorSelecionado[] = ((String) comboServidores.getSelectedItem()).split("-");
+				btnSalvar.setText("Salvar Configurações em " + strServidorSelecionado[0] );
+
+				
+			}
+			
+		});
+
+		
+		// Ações dos botoes da Aba Servidores
+		
+		botaoAtualizaServidores.addActionListener( new ActionListener() {
+
+			@Override
+			public void actionPerformed(ActionEvent arg0) {
+				// TODO Auto-generated method stub
+				JFileChooser fileChooser = new JFileChooser();
+				fileChooser.setFileSelectionMode(JFileChooser.FILES_AND_DIRECTORIES);
+				FileNameExtensionFilter filter = new FileNameExtensionFilter("Arquivos jar","jar");
+				
+				fileChooser.setFileFilter( filter );
+				
+				
+				int codigoRetorno = fileChooser.showOpenDialog(null);
+				
+				//if( codigoRetorno != JFileChooser)
+				File arquivoJar = fileChooser.getSelectedFile();
+				
+				if(arquivoJar == null) {
+					return;
+				}
+				
+				int resposta = JOptionPane.showConfirmDialog(panelGeral, "Essa operação causara o reboot do X Data Collect Server em todos servidores.\nTem certeza que deseja continuar ?", "Informação: Atualização", JOptionPane.INFORMATION_MESSAGE );
+				
+				if( resposta != JOptionPane.OK_OPTION ) {
+					return;
+				}
+				if( ! arquivoJar.exists() ) {
+					JOptionPane.showMessageDialog(null, "ERRO: Arquivo " + arquivoJar.getAbsolutePath() + " não existe.", "Erro: Arquivo", JOptionPane.ERROR_MESSAGE );
+				}
+				
+				if( ! arquivoJar.canRead() ) { 
+					
+					JOptionPane.showMessageDialog(null, "ERRO: Arquivo " + arquivoJar.getAbsolutePath() + " não pode ser lido.", "Erro: Arquivo", JOptionPane.ERROR_MESSAGE );
+					
+				}
+				
+				// Atualizar arquivo JAR do X Data Collect Server em todos servidores.
+				
+				Vector vetorServidores = new Vector(); // guarda lista de servidores a consultar
+				Vector vetorInfoServer = new Vector(); // guarda informaçoes do servidor consultado
+				
+				ArrayList<ConnectThreadAdm> arrayNet = new ArrayList<ConnectThreadAdm>();
+				ArrayList<Thread> arrayTarefa = new ArrayList<Thread>();
+
+				Configuracoes configuracoes = new Configuracoes(); // abre configuracoes
+				
+				configuracoes.lerConf(); // le as configuracoes
+
+				// Consulta todos os servidores especificados na configuracao
+				vetorServidores = configuracoes.getInfoServidores(); // pega informacao da configuracao
+
+				for(int linha = 0 ; linha < vetorServidores.size() ; linha = linha + 2 ) {
+					
+					
+					ConnectThreadAdm net = new ConnectThreadAdm( (String) vetorServidores.get(linha),(String) vetorServidores.get(linha+1) );
+					net.AtualizaServer( arquivoJar.getAbsolutePath() );
+					
+					Thread tarefa = new Thread(net);
+					tarefa.start();
+					
+					//while(tarefa.isAlive() ) {
+					
+					//}
+				
+					arrayTarefa.add(tarefa);
+				
+					arrayNet.add(net);
+				
+					//Vector vetorInfoServer = new Vector();
+					
+				}
+				
+				try{
+					Thread.sleep(1);
+				}catch(InterruptedException e1) {
+					e1.printStackTrace();
+				}
+				
+				JanelaErroInfo janelaErroInfo = new JanelaErroInfo();
+				
+				
+				//textAreaStatus.reset();
+				//textAreaStatus.adicionarGreen("Coletando informações , Aguarde...");
+				// Verifica as tarefas que ainda estao em execucao
+				// aguarda finalizacao de todas para continuar.	
+				
+				int progressoIndice = 0;
+				
+				while(arrayTarefa.size() > 0) {
+					
+					
+					for(int i = 0; i < arrayTarefa.size(); i++ ) {
+						
+						//areaStatus.updateUI();
+						//gui.repaint(0, 0, 1024, 700);
+						Thread tarefa = arrayTarefa.get(i);
+						if( ! tarefa.isAlive() ) { 
+							arrayTarefa.remove(i);
+							i = 0;
+						}
+						
+					}
+					
+				}
+				
+				// Pega as informacoes coletadas e exibe na tela.
+				int indice = 0;
+				int codErro = 0;
+				
+				for(int i = 0 ; i < arrayNet.size() ; i++) {
+				
+					ConnectThreadAdm net = arrayNet.get(i);
+				
+					codErro = net.returnCod();
+					
+					if(codErro != 0 ) {
+						janelaErroInfo.adicionarTxtVermelho("\n !!! Falha de comunicação com Servidor " + (String) vetorServidores.get(indice) );
+					} else {
+						janelaErroInfo.adicionarTxtAzul("\nServidor " + net.getNomeServidor() + " Atualizado com sucesso , com a versão " + net.getVersaoServidor() );
+					}
+					
+					indice = indice + 2;
+
+				}
+				
+				janelaErroInfo.setVisivel(true);
+				//checaVersoes();
+
+			}
+			
+		});
+		
+	botaoConfirma.addActionListener(new ActionListener() {
+			
+			public void actionPerformed(ActionEvent e) {
+			
+				int respostaUsuario = JOptionPane.showConfirmDialog(null,"Deseja salvar as configurações ?");
+				
+				if ( respostaUsuario == 0 ) {
+				
+					Vector vetorInfoServidores = new Vector();
+					Vector vetorInfoServerCMP = new Vector();
+					
+					vetorInfoServidores = tabelaServidores.getDados();
+					vetorInfoServerCMP = vetorInfoServidores;
+					
+					// Atualiza comboBox da janela principal
+					
+					//vetComboServidores.add("<Todos>");
+					
+					
+					//for(int i = 0 ; i < comboServidores.getComponentCount() ;i++) {
+					comboServidores.disable();
+					comboServidores.removeAllItems();
+					comboServidores.addItem("<Selecione>");
+					comboServidores.enable();
+					
+					while( comboServidores.getItemCount() > 1) {
+						
+						//if( ! comboServidores.getItemAt(i).equals("<Selecione>") ) {
+							comboServidores.removeItemAt(1);
+						//}
+						
+					}
+					
+					
+					//comboServidores.removeAllItems();
+					//comboServidores.addItem("<Selecione>");
+					
+					//comboServidores.addItem("<SELECIONE>");
+					for(int i = 0; i < vetorInfoServidores.size();i=i+2) {
+					
+						comboServidores.addItem( (String) vetorInfoServidores.get(i) + "-" + (String) vetorInfoServidores.get(i+1) );
+						
+						
+					}
+					
+					// Grava as configurações
+					configuracoes.gravaConf(vetorInfoServidores," " );
+				
+				}
+								
+			}
+			
+		});
+
+		
+		botaoAdicionar.addActionListener(new ActionListener() {
+			
+			public void actionPerformed(ActionEvent e) {
+			
+				
+				Vector vetorServer = new Vector();
+				
+				vetorServer.add(entryServidor1.getText());
+				vetorServer.add(entryHostip1.getText());
+				
+				// Laço for para verificar se o nome dos servidores e 
+				// Hostname/IP definidos possuem caracteres invalidos 
+				// \/:*?"<>|
+				
+				StringBuffer strNaoPode = new StringBuffer("\\/:*?\"<>|-");
+
+				for(int i = 0 ; i < vetorServer.size(); i++ ) {
+					
+					StringBuffer str = new StringBuffer( (String) vetorServer.get(i) );
+				
+					for(int j = 0 ; j < strNaoPode.length() ; j++) {
+						
+						if(str.toString().lastIndexOf(strNaoPode.charAt(j)) != -1 ) {
+							
+							JOptionPane.showMessageDialog(panel, "O nome dos servidores e Hostname/IP não podem conter os caracteres \\/:*?\"<>|-","Erro", JOptionPane.ERROR_MESSAGE);
+							return;
+						}
+					
+					}
+				
+				
+				str = null;
+				
+				}
+				
+				tabelaServidores.adicionaLinha(vetorServer);
+
+			}
+		});
+		botaoExcluir.addActionListener(new ActionListener() {
+			
+			public void actionPerformed(ActionEvent e) {
+				
+				
+				tabelaServidores.removeLinha(tabelaServidores.getItemSelecionado(),true);
+				
+					
+			}
+			
+		});
+
+	}
+	
+	public void checaVersoes() {
+		
+		
+		Vector vetorServidores = new Vector(); // guarda lista de servidores a consultar
+		Vector vetorInfoServer = new Vector(); // guarda informaçoes do servidor consultado
+		
+		ArrayList<ConnectThreadAdm> arrayNet = new ArrayList<ConnectThreadAdm>();
+		ArrayList<Thread> arrayTarefa = new ArrayList<Thread>();
+
+		Configuracoes configuracoes = new Configuracoes(); // abre configuracoes
+		
+		configuracoes.lerConf(); // le as configuracoes
+
+		// Consulta todos os servidores especificados na configuracao
+		vetorServidores = configuracoes.getInfoServidores(); // pega informacao da configuracao
+
+		for(int linha = 0 ; linha < vetorServidores.size() ; linha = linha + 2 ) {
+			
+			
+			ConnectThreadAdm net = new ConnectThreadAdm( (String) vetorServidores.get(linha),(String) vetorServidores.get(linha+1) );
+			net.versaoServidor();
+			
+			Thread tarefa = new Thread(net);
+			tarefa.start();
+			
+			//while(tarefa.isAlive() ) {
+			
+			//}
+		
+			arrayTarefa.add(tarefa);
+		
+			arrayNet.add(net);
+		
+			//Vector vetorInfoServer = new Vector();
+			
+		}
+		
+		try{
+			Thread.sleep(1);
+		}catch(InterruptedException e1) {
+			e1.printStackTrace();
+		}
+		
+		JanelaErroInfo janelaErroInfo = new JanelaErroInfo();
+		
+		
+		//textAreaStatus.reset();
+		//textAreaStatus.adicionarGreen("Coletando informações , Aguarde...");
+		// Verifica as tarefas que ainda estao em execucao
+		// aguarda finalizacao de todas para continuar.	
+		
+		int progressoIndice = 0;
+		
+		while(arrayTarefa.size() > 0) {
+			
+			
+			for(int i = 0; i < arrayTarefa.size(); i++ ) {
+				
+				//areaStatus.updateUI();
+				//gui.repaint(0, 0, 1024, 700);
+				Thread tarefa = arrayTarefa.get(i);
+				if( ! tarefa.isAlive() ) { 
+					arrayTarefa.remove(i);
+					i = 0;
+				}
+				
+			}
+			
+		}
+		
+		// Pega as informacoes coletadas e exibe na tela.
+		int indice = 0;
+		int codErro = 0;
+		
+		boolean versoesDiferentes = false;
+		
+		janelaErroInfo.adicionarTxtVermelho("!!! ATENÇÃO X DATA COLLECT SERVER COM VERSÕES DIFERENTES !!!");
+		
+		String versaoAtual = "";
+		String versao = "";
+		for(int i = 0 ; i < arrayNet.size() ; i++) {
+		
+			ConnectThreadAdm net = arrayNet.get(i);
+			
+			
+			
+			codErro = net.returnCod();
+			
+			versaoAtual = net.getVersaoServidor();
+			
+			if(codErro != 0 ) {
+				janelaErroInfo.adicionarTxtVermelho("\n !!! Falha de comunicação com Servidor " + (String) vetorServidores.get(indice) );
+			} else {
+				janelaErroInfo.adicionarTxtAzul("\nServidor " + net.getNomeServidor() + " esta com a versão " + versaoAtual );
+			}
+			
+			//if( net.getVersaoServidor() != null ) {
+			
+			try {
+			
+				if( codErro == 0 && ! versao.equals("") ) {
+					
+					if( ! versao.equals( versaoAtual ) ) {
+						
+						versoesDiferentes = true;
+						
+					}
+			
+				}
+				
+			versao = versaoAtual;
+			
+			} catch( NullPointerException e ) {
+				//versoesDiferentes = true;
+				versao = "";
+			}
+			
+			indice = indice + 2;
+			
+		} // Fim do loop for
+		
+		try {
+			
+			if( codErro == 0 && ! versao.equals("") ) {
+				
+				if( ! versao.equals( versaoAtual ) ) {
+					
+					versoesDiferentes = true;
+					
+				}
+		
+			}
+			
+		versao = versaoAtual;
+		
+		} catch( NullPointerException e ) {
+			//versoesDiferentes = true;
+			versao = "";
+		}
+
+		
+		if( versoesDiferentes ) {
+			janelaErroInfo.setVisivel(true);
+		}
+
+	
+	
+	}
+
+
+	
+}
+
+
+

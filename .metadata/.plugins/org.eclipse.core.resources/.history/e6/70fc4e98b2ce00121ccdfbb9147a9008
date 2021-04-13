@@ -1,0 +1,8 @@
+
+public class GuiCadCmd {
+
+	public GuiCadCmd() {
+		// TODO Auto-generated constructor stub
+	}
+
+}

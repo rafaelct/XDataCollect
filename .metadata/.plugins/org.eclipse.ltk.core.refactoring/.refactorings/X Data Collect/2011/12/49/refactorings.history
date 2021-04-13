@@ -1,0 +1,4 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<session version="1.0">
+<refactoring comment="Rename type &apos;resumoOpcoes&apos; to &apos;TextAreaStatus&apos;&#x0D;&#x0A;- Original project: &apos;Dedo Duro&apos;&#x0D;&#x0A;- Original element: &apos;resumoOpcoes&apos;&#x0D;&#x0A;- Renamed element: &apos;TextAreaStatus&apos;&#x0D;&#x0A;- Update references to refactored element&#x0D;&#x0A;- Update textual occurrences in comments and strings" description="Rename type &apos;resumoOpcoes&apos;" flags="589830" id="org.eclipse.jdt.ui.rename.type" input="/src&lt;{resumoOpcoes.java[resumoOpcoes" matchStrategy="1" name="TextAreaStatus" qualified="false" references="true" similarDeclarations="false" stamp="1322706220712" textual="false" version="1.0"/>
+</session>
